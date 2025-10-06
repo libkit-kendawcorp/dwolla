@@ -502,12 +502,6 @@ namespace DwollaSDK
                 }
             }
 
-            /// <summary>
-            // Creates a new customer with different verification levels and capabilities. 
-            // Supports personal verified customers (individuals), business verified customers (businesses), 
-            // unverified customers, and receive-only users. 
-            // Customer type determines transaction limits, verification requirements, and available features.
-            /// </summary>
             public static async Task<bool> CreateReceiveOnlyUserAsync(
             string FirstName,
             string LastName,
@@ -526,7 +520,7 @@ namespace DwollaSDK
                     = new AuthenticationHeaderValue(
                     "Bearer",
                     Auth.Token);
-                    
+
                     StringContent StringContent
                     = new StringContent(
                     new JObject
@@ -563,7 +557,258 @@ namespace DwollaSDK
                     = HttpResponseMessage
                     .IsSuccessStatusCode;
 
-                    return 
+                    return
+                    Boolean;
+                }
+            }
+
+            // Test
+            public static async Task<bool> CreateUnverifiedCustomerAsync(
+            string FirstName,
+            string LastName,
+            string Email
+            )
+            {
+                using (HttpClient HttpClient = new HttpClient())
+                {
+                    HttpClient.DefaultRequestHeaders
+                    .Accept.Add(
+                    new MediaTypeWithQualityHeaderValue
+                    ("application/vnd.dwolla.v1.hal+json"));
+
+                    HttpClient.DefaultRequestHeaders
+                    .Authorization
+                    = new AuthenticationHeaderValue(
+                    "Bearer",
+                    Auth.Token);
+
+                    StringContent StringContent
+                    = new StringContent(
+                    new JObject
+                    {
+                        ["firstName"]
+                        = FirstName,
+
+                        ["lastName"]
+                        = LastName,
+
+                        ["email"]
+                        = Email
+                    }.ToString
+                    (Formatting.None),
+                    Encoding.UTF8,
+                    "application/vnd.dwolla.v1.hal+json");
+
+                    HttpResponseMessage HttpResponseMessage
+                    = await HttpClient
+                    .PostAsync(
+                    ApiBaseUrl
+                    + "/customers",
+                    StringContent);
+
+                    string Response
+                    = await HttpResponseMessage
+                    .Content
+                    .ReadAsStringAsync();
+
+                    bool Boolean
+                    = HttpResponseMessage
+                    .IsSuccessStatusCode;
+
+                    return
+                    Boolean;
+                }
+            }
+
+            // Test
+            public static async Task<bool> CreateVerifiedPersonalCustomerAsync(
+            string FirstName,
+            string LastName,
+            string Email,
+            string Address1,
+            string Address2,
+            string City,
+            string State,
+            int PostalCode,
+            int SSN,
+            DateTime DateOfBirth
+            )
+            {
+                using (HttpClient HttpClient = new HttpClient())
+                {
+                    HttpClient.DefaultRequestHeaders
+                    .Accept.Add(
+                    new MediaTypeWithQualityHeaderValue
+                    ("application/vnd.dwolla.v1.hal+json"));
+
+                    HttpClient.DefaultRequestHeaders
+                    .Authorization
+                    = new AuthenticationHeaderValue(
+                    "Bearer",
+                    Auth.Token);
+
+                    StringContent StringContent
+                    = new StringContent(
+                    new JObject
+                    {
+                        ["firstName"]
+                        = FirstName,
+
+                        ["lastName"]
+                        = LastName,
+
+                        ["email"]
+                        = Email,
+
+                        ["type"]
+                        = "personal",
+
+                        ["address1"]
+                        = Address1,
+
+                        ["address2"]
+                        = Address2,
+
+                        ["city"]
+                        = City,
+
+                        ["state"]
+                        = State,
+
+                        ["postalCode"]
+                        = PostalCode,
+
+                        ["ssn"]
+                        = SSN,
+
+                        ["dateOfBirth"]
+                        = DateOfBirth
+                    }.ToString
+                    (Formatting.None),
+                    Encoding.UTF8,
+                    "application/vnd.dwolla.v1.hal+json");
+
+                    HttpResponseMessage HttpResponseMessage
+                    = await HttpClient
+                    .PostAsync(
+                    ApiBaseUrl
+                    + "/customers",
+                    StringContent);
+
+                    string Response
+                    = await HttpResponseMessage
+                    .Content
+                    .ReadAsStringAsync();
+
+                    bool Boolean
+                    = HttpResponseMessage
+                    .IsSuccessStatusCode;
+
+                    return
+                    Boolean;
+                }
+            }
+
+            // Test
+            public static async Task<bool> CreateVerifiedSolePropCustomerAsync(
+            string FirstName,
+            string LastName,
+            string Email,
+            string Address1,
+            string Address2,
+            string City,
+            string State,
+            int PostalCode,
+            int SSN,
+            DateTime DateOfBirth,
+            string BusinessClassification,
+            string BusinessName,
+            string BusinessEIN
+            )
+            {
+                using (HttpClient HttpClient = new HttpClient())
+                {
+                    HttpClient.DefaultRequestHeaders
+                    .Accept.Add(
+                    new MediaTypeWithQualityHeaderValue
+                    ("application/vnd.dwolla.v1.hal+json"));
+
+                    HttpClient.DefaultRequestHeaders
+                    .Authorization
+                    = new AuthenticationHeaderValue(
+                    "Bearer",
+                    Auth.Token);
+
+                    StringContent StringContent
+                    = new StringContent(
+                    new JObject
+                    {
+                        ["firstName"]
+                        = FirstName,
+
+                        ["lastName"]
+                        = LastName,
+
+                        ["email"]
+                        = Email,
+
+                        ["type"]
+                        = "business",
+
+                        ["address1"]
+                        = Address1,
+
+                        ["address2"]
+                        = Address2,
+
+                        ["city"]
+                        = City,
+
+                        ["state"]
+                        = State,
+
+                        ["postalCode"]
+                        = PostalCode,
+
+                        ["ssn"]
+                        = SSN,
+
+                        ["dateOfBirth"]
+                        = DateOfBirth,
+
+                        ["businessClassification"]
+                        = BusinessClassification,
+
+                        ["businessName"]
+                        = BusinessName,
+
+                        ["ein"]
+                        = BusinessEIN
+
+                        ["businessType"]
+                        = "soleProprietorship"
+                    }.ToString
+                    (Formatting.None),
+                    Encoding.UTF8,
+                    "application/vnd.dwolla.v1.hal+json");
+
+                    HttpResponseMessage HttpResponseMessage
+                    = await HttpClient
+                    .PostAsync(
+                    ApiBaseUrl
+                    + "/customers",
+                    StringContent);
+
+                    string Response
+                    = await HttpResponseMessage
+                    .Content
+                    .ReadAsStringAsync();
+
+                    bool Boolean
+                    = HttpResponseMessage
+                    .IsSuccessStatusCode;
+
+                    return
                     Boolean;
                 }
             }
