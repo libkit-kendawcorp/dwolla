@@ -562,7 +562,6 @@ namespace DwollaSDK
                 }
             }
 
-            // Test
             public static async Task<bool> CreateUnverifiedCustomerAsync(
             string FirstName,
             string LastName,
@@ -620,7 +619,6 @@ namespace DwollaSDK
                 }
             }
 
-            // Test
             public static async Task<bool> CreateVerifiedPersonalCustomerAsync(
             string FirstName,
             string LastName,
@@ -721,7 +719,8 @@ namespace DwollaSDK
             int PostalCode,
             int SSN,
             DateTime DateOfBirth,
-            string BusinessClassification,
+            Business.Classification
+            BusinessClassification,
             string BusinessName,
             string BusinessEIN
             )
@@ -777,13 +776,14 @@ namespace DwollaSDK
                         = DateOfBirth,
 
                         ["businessClassification"]
-                        = BusinessClassification,
+                        = BusinessClassification
+                        .ID,
 
                         ["businessName"]
                         = BusinessName,
 
                         ["ein"]
-                        = BusinessEIN
+                        = BusinessEIN,
 
                         ["businessType"]
                         = "soleProprietorship"
@@ -810,6 +810,233 @@ namespace DwollaSDK
 
                     return
                     Boolean;
+                }
+            }
+
+            // Test
+            public static async Task<bool> CreateVerifiedBusinessCustomerWithControllerAsync(
+            string FirstName,
+            string LastName,
+            string Email,
+            string Address1,
+            string Address2,
+            string City,
+            string State,
+            int PostalCode,
+            int SSN,
+            DateTime DateOfBirth,
+            Business.Classification
+            BusinessClassification,
+            string BusinessName,
+            string BusinessEIN
+            )
+            {
+                using (HttpClient HttpClient = new HttpClient())
+                {
+                    HttpClient.DefaultRequestHeaders
+                    .Accept.Add(
+                    new MediaTypeWithQualityHeaderValue
+                    ("application/vnd.dwolla.v1.hal+json"));
+
+                    HttpClient.DefaultRequestHeaders
+                    .Authorization
+                    = new AuthenticationHeaderValue(
+                    "Bearer",
+                    Auth.Token);
+
+                    StringContent StringContent
+                    = new StringContent(
+                    new JObject
+                    {
+                        ["firstName"]
+                        = FirstName,
+
+                        ["lastName"]
+                        = LastName,
+
+                        ["email"]
+                        = Email,
+
+                        ["type"]
+                        = "business",
+
+                        ["address1"]
+                        = Address1,
+
+                        ["address2"]
+                        = Address2,
+
+                        ["city"]
+                        = City,
+
+                        ["state"]
+                        = State,
+
+                        ["postalCode"]
+                        = PostalCode,
+
+                        ["ssn"]
+                        = SSN,
+
+                        ["dateOfBirth"]
+                        = DateOfBirth,
+
+                        ["businessClassification"]
+                        = BusinessClassification
+                        .ID,
+
+                        ["businessName"]
+                        = BusinessName,
+
+                        ["ein"]
+                        = BusinessEIN,
+
+                        ["businessType"]
+                        = "soleProprietorship"
+                    }.ToString
+                    (Formatting.None),
+                    Encoding.UTF8,
+                    "application/vnd.dwolla.v1.hal+json");
+
+                    HttpResponseMessage HttpResponseMessage
+                    = await HttpClient
+                    .PostAsync(
+                    ApiBaseUrl
+                    + "/customers",
+                    StringContent);
+
+                    string Response
+                    = await HttpResponseMessage
+                    .Content
+                    .ReadAsStringAsync();
+
+                    bool Boolean
+                    = HttpResponseMessage
+                    .IsSuccessStatusCode;
+
+                    return
+                    Boolean;
+                }
+            }
+
+            public class Business
+            {
+                /// <summary>
+                // Returns a directory of business and industry classifications required for creating business verified customers. 
+                // Each business classification contains multiple industry classifications. 
+                // The industry classification ID must be provided in the businessClassification parameter during business customer creation for verification.
+                /// </summary>
+                public class Classification
+                {
+                    public string ID
+                    { get; private set; }
+
+                    public string Name
+                    { get; private set; }
+
+                    internal Classification(
+                    JToken JToken)
+                    {
+                        ID
+                        = (string)
+                        JToken["id"];
+
+                        Name
+                        = (string)
+                        JToken["name"];
+                    }
+
+                    public static async Task<Classification[]> GetClassificationsAsync()
+                    {
+                        using (HttpClient HttpClient
+                        = new HttpClient())
+                        {
+                            HttpClient.DefaultRequestHeaders
+                            .Accept.Add(
+                            new MediaTypeWithQualityHeaderValue
+                            ("application/vnd.dwolla.v1.hal+json"));
+
+                            HttpClient.DefaultRequestHeaders
+                            .Authorization
+                            = new AuthenticationHeaderValue(
+                            "Bearer",
+                            Auth.Token);
+
+                            StringBuilder StringBuilder
+                            = new StringBuilder();
+
+                            StringBuilder
+                            .Append(ApiBaseUrl);
+                            StringBuilder
+                            .Append("/business-classifications");
+
+                            string Uri
+                            = StringBuilder
+                            .ToString();
+
+                            HttpResponseMessage HttpResponseMessage
+                            = await HttpClient
+                            .GetAsync(Uri);
+
+                            string Response
+                            = await HttpResponseMessage
+                            .Content
+                            .ReadAsStringAsync();
+
+                            bool Boolean
+                            = !HttpResponseMessage
+                            .IsSuccessStatusCode;
+
+                            switch (Boolean)
+                            {
+                                case true:
+                                    {
+                                        throw new HttpRequestException(
+                                        $"Dwolla GET /customers failed: {(int)HttpResponseMessage.StatusCode} {HttpResponseMessage.ReasonPhrase}\n{Response}");
+                                    }
+                            }
+
+                            try
+                            {
+                                JToken JToken
+                                = JToken.Parse(Response)
+                                ?? throw new InvalidOperationException
+                                ("Failed to deserialize Dwolla token response.");
+
+                                List<Classification> List
+                                = new List<Classification>();
+
+                                JArray JArray
+                                = JToken
+                                ["_embedded"]
+                                ["business-classifications"]
+                                .Value<JArray>();
+
+                                foreach (JToken _JToken
+                                in JArray)
+                                {
+                                    Classification Classification
+                                    = new Classification(_JToken);
+
+                                    List
+                                    .Add(
+                                    Classification);
+                                }
+
+                                Array Array
+                                = List
+                                .ToArray();
+
+                                return
+                                (Classification[])Array;
+                            }
+                            catch (JsonException JsonException)
+                            {
+                                throw new InvalidOperationException
+                                ("Dwolla returned an empty response body.");
+                            }
+                        }
+                    }
                 }
             }
         }
